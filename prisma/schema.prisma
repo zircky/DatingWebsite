@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  email       String    @unique
+  name        String?
+  slug        String
+  password    String
+  dateOfBirth DateTime? @map("data_of_birth") @db.Date
+  images      Images?   @relation(fields: [imagesId], references: [id])
+  imagesId    Int?      @map("images_id")
+
+  profile   Profile? @relation(fields: [profileId], references: [id])
+  profileId Int?     @map("profile_id")
+
+  role Role @default(USER)
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  height          Int? // Рост
+  weight          Int? // Вес
+  hairColor       String? @map("hair_color") // Цвет волос
+  eyeColor        String? @map("eye_color") // Цвет глаз
+  purposeOfDating String? @map("purpose_of_dating") // Цель знакомства
+  aboutMe         String? @map("about_me") // О себе
+  User            User[]
+}
+
+model Images {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  images String[] @default(["/uploads/default-avatar.png"])
+  User   User[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
